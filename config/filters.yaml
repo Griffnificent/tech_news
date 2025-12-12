@@ -1,0 +1,70 @@
+# グローバルフィルタ（全フィードに適用）
+global:
+  include_keywords:
+    - "脆弱性"
+    - "vulnerability"
+    - "CVE-"
+    - "security"
+    - "セキュリティ"
+    - "審査"
+    - "review guideline"
+    - "policy update"
+    - "RCE"
+    - "zero-day"
+
+  exclude_keywords:
+    - "広告"
+    - "sponsored"
+
+# カテゴリ別フィルタ
+categories:
+  mobile:
+    include_keywords:
+      - "Play Console"
+      - "App Store"
+      - "審査"
+      - "ポリシー"
+      - "policy"
+      - "billing"
+      - "課金"
+      - "SDK"
+      - "targetSdk"
+      - "iOS 18"
+      - "Android 15"
+    priority_keywords:  # これらはハイライト通知
+      - "審査ガイドライン"
+      - "リジェクト"
+      - "必須"
+      - "required"
+
+  package:
+    include_keywords:
+      - "flutter"
+      - "dart"
+      - "npm"
+      - "node"
+      - "critical"
+      - "high severity"
+    severity_filter:
+      min_level: "medium"  # low は無視
+
+  cve:
+    include_keywords:
+      - "android"
+      - "ios"
+      - "linux"
+      - "chrome"
+      - "node"
+    cvss_filter:
+      min_score: 7.0  # CVSS 7.0以上のみ
+
+# 特定フィード専用フィルタ
+per_feed:
+  "Hacker News (Top)":
+    include_keywords:
+      - "flutter"
+      - "dart"
+      - "android"
+      - "ios"
+      - "security"
+      - "vulnerability"

@@ -1,0 +1,38 @@
+feeds:
+  # 脆弱性全般
+  - name: "NVD"
+    url: "https://nvd.nist.gov/feeds/xml/cve/misc/nvd-rss.xml"
+    category: "cve"
+
+  - name: "JPCERT/CC"
+    url: "https://www.jpcert.or.jp/rss/jpcert.rdf"
+    category: "security"
+
+  - name: "IPA"
+    url: "https://www.ipa.go.jp/security/rss/alert.rdf"
+    category: "security"
+
+  # GitHub Security Advisories
+  - name: "GitHub Advisory"
+    url: "https://github.com/advisories.atom"
+    category: "package"
+
+  # Android/iOS
+  - name: "Android Developers Blog"
+    url: "https://android-developers.googleblog.com/feeds/posts/default"
+    category: "mobile"
+
+  - name: "Apple Developer News"
+    url: "https://developer.apple.com/news/rss/news.rss"
+    category: "mobile"
+
+  # OS系
+  - name: "Ubuntu Security"
+    url: "https://ubuntu.com/security/notices/rss.xml"
+    category: "os"
+
+  # 技術ニュース（補助）
+  - name: "Hacker News (Top)"
+    url: "https://hnrss.org/newest?points=100"
+    category: "general"
+    enabled: false  # 必要に応じて有効化
