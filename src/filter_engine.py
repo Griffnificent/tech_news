@@ -48,12 +48,28 @@ class FilterEngine:
         all_include = global_include + cat_include + feed_include
 
         # マッチング
+        security_keywords = ["vulnerability", "security", "cve-", "脆弱性", "セキュリティ",
+                            "critical", "high", "severe", "exploit", "rce", "zero-day"]
+        has_security_keyword = any(sk in text for sk in security_keywords)
+
         for kw in all_include:
             if kw.lower() in text:
+                # packageカテゴリの場合、言語名だけでなくセキュリティキーワードも必要
+                if category == "package":
+                    # セキュリティキーワードがない場合はスキップ
+                    if not has_security_keyword and kw.lower() in ["npm", "node", "nodejs", "javascript",
+                        "typescript", "python", "pip", "pypi", "flutter", "dart", "pub",
+                        "kotlin", "java", "maven", "gradle", "spring", "ruby", "gem",
+                        "rubygems", "rails", "swift", "cocoapods", "bash", "shell",
+                        "zsh", "docker", "container"]:
+                        continue
                 matched_keywords.append(kw)
 
-        # 優先キーワードチェック
-        for kw in cat_priority:
+        # 優先キーワードチェック（High/Critical判定）
+        feed_priority = feed_filters.get("priority_keywords", [])
+        all_priority = cat_priority + feed_priority
+
+        for kw in all_priority:
             if kw.lower() in text:
                 priority = 10
                 matched_keywords.append(f"[HIGH] {kw}")
@@ -63,9 +79,21 @@ class FilterEngine:
             matched_keywords.append("CVE")
             priority = max(priority, 7)
 
-        # フィルタなしカテゴリは全パス（security系など）
+        # High/Criticalキーワードの追加チェック
+        high_severity_keywords = ["critical", "high", "severe", "9.", "10.0", "zero-day", "ゼロデイ"]
+        for kw in high_severity_keywords:
+            if kw in text:
+                priority = max(priority, 8)
+                if kw not in [k.lower() for k in matched_keywords]:
+                    matched_keywords.append(f"severity:{kw}")
+
+        # security/cveカテゴリもキーワードマッチが必要
         if category in ["security", "cve"] and not matched_keywords:
-            return {"passed": True, "priority": priority, "matched_keywords": ["category:security"]}
+            # キーワードなしでもCVEやsecurityという単語があれば通過
+            if "cve-" in text or "security" in text or "脆弱性" in text:
+                matched_keywords.append("category:security")
+            else:
+                return {"passed": False, "priority": 0, "matched_keywords": []}
 
         passed = len(matched_keywords) > 0
 

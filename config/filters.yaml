@@ -1,20 +1,42 @@
 # グローバルフィルタ（全フィードに適用）
 global:
   include_keywords:
+    # 脆弱性全般
     - "脆弱性"
     - "vulnerability"
     - "CVE-"
     - "security"
     - "セキュリティ"
+    # High/Critical Severity
+    - "critical"
+    - "high"
+    - "severe"
+    - "重大"
+    - "深刻"
+    - "緊急"
+    - "危険"
+    # 攻撃手法
+    - "RCE"
+    - "remote code execution"
+    - "zero-day"
+    - "ゼロデイ"
+    - "exploit"
+    - "悪用"
+    - "arbitrary code execution"
+    - "privilege escalation"
+    - "権限昇格"
+    # モバイルアプリ審査
     - "審査"
     - "review guideline"
     - "policy update"
-    - "RCE"
-    - "zero-day"
 
   exclude_keywords:
     - "広告"
     - "sponsored"
+    # Low Severityを除外
+    - "low severity"
+    - "低"
+    - "minor"
 
 # カテゴリ別フィルタ
 categories:
@@ -58,10 +80,12 @@ categories:
       - "java"
       - "maven"
       - "gradle"
+      - "spring"
       # Ruby
       - "ruby"
       - "gem"
       - "rubygems"
+      - "rails"
       # Swift
       - "swift"
       - "cocoapods"
@@ -72,13 +96,20 @@ categories:
       # Docker
       - "docker"
       - "container"
-      # 重要度
+    # High/Critical専用キーワード
+    priority_keywords:
       - "critical"
-      - "high severity"
-      - "高"
-      - "重大"
+      - "high"
+      - "severe"
+      - "9."  # CVSS 9.x
+      - "10.0"  # CVSS 10.0
+      - "remote code execution"
+      - "RCE"
+      - "zero-day"
+      - "exploit in the wild"
+      - "actively exploited"
     severity_filter:
-      min_level: "medium"  # low は無視
+      min_level: "high"  # High以上のみ
 
   cve:
     include_keywords:
@@ -88,6 +119,7 @@ categories:
       # OS
       - "linux"
       - "ubuntu"
+      - "debian"
       # ブラウザ
       - "chrome"
       - "safari"
@@ -99,9 +131,22 @@ categories:
       - "java"
       - "kotlin"
       - "ruby"
+      - "swift"
+      - "dart"
+      - "typescript"
+      - "bash"
+      # コンテナ
       - "docker"
+      - "kubernetes"
+    # High/Critical専用
+    priority_keywords:
+      - "critical"
+      - "9."
+      - "10.0"
+      - "remote code execution"
+      - "privilege escalation"
     cvss_filter:
-      min_score: 7.0  # CVSS 7.0以上のみ
+      min_score: 7.0  # CVSS 7.0以上のみ（High以上）
 
 # 特定フィード専用フィルタ
 per_feed:
