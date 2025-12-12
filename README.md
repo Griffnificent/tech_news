@@ -9,6 +9,7 @@
 - 優先度付け（高優先度のアラートは個別通知）
 - 重複排除（SQLiteで既読管理）
 - Discord Webhook経由での通知
+- **AI要約（Ollama）** - High Priority通知に日本語要約を自動追加（完全無料、オプション機能）
 
 ## カバーしている言語・エコシステム
 
@@ -46,6 +47,7 @@ tech_news/
 │   ├── feed_parser.py     # RSSパーサー
 │   ├── filter_engine.py   # フィルタエンジン
 │   ├── notifier.py        # Discord通知
+│   ├── summarizer.py      # AI要約（Ollama）
 │   └── db.py              # 既読管理DB
 ├── data/
 │   └── seen.db            # SQLite（自動生成）
@@ -99,7 +101,47 @@ echo 'export DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/YOUR_WEBHOOK_
 source ~/.bashrc
 ```
 
-### 4. テスト実行
+### 4. Ollama（AI要約）のセットアップ（オプション）
+
+High Priority通知に日本語要約を自動追加する機能です（完全無料）。
+
+**Ollamaのインストール**
+
+```bash
+# Linux/macOS
+curl -fsSL https://ollama.com/install.sh | sh
+
+# または https://ollama.com/download からダウンロード
+```
+
+**モデルのダウンロード**
+
+```bash
+# 推奨: llama3.2（軽量で高速）
+ollama pull llama3.2
+
+# または gemma2
+ollama pull gemma2
+```
+
+**Ollamaサーバーの起動**
+
+```bash
+# バックグラウンドで自動起動（通常は自動で起動済み）
+ollama serve
+```
+
+**動作確認**
+
+```bash
+curl http://localhost:11434/api/tags
+```
+
+JSONレスポンスが返ってくればOKです。
+
+Ollamaが起動していない場合、AI要約機能は自動的に無効化され、通常の通知のみが送信されます。
+
+### 5. テスト実行
 
 ```bash
 python src/main.py

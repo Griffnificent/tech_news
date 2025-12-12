@@ -1,10 +1,13 @@
 import os
 import requests
 from datetime import datetime
+from summarizer import OllamaSummarizer, is_english_title
 
 class DiscordNotifier:
     def __init__(self):
         self.webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
+        self.summarizer = OllamaSummarizer()
+        self.use_summarizer = self.summarizer.is_available()
 
     def send_batch(self, entries, batch_size=5):
         """High Priority（優先度8以上）のみを個別送信"""
@@ -30,10 +33,29 @@ class DiscordNotifier:
     def _send_single(self, entry, is_priority=False):
         color = 0xFF0000 if is_priority else 0x00FF00  # 赤 or 緑
 
+        # タイトルを決定（英語の場合は日本語タイトルを生成）
+        display_title = entry['title']
+
+        if is_priority and self.use_summarizer and is_english_title(entry['title']):
+            print(f"Generating Japanese title for: {entry['title'][:50]}...")
+            japanese_title = self.summarizer.generate_japanese_title(entry)
+            if japanese_title and japanese_title != entry['title']:
+                display_title = japanese_title
+
+        # High Priorityの場合、日本語要約を生成
+        description = entry["summary"][:300] if entry["summary"] else ""
+
+        if is_priority and self.use_summarizer:
+            print(f"Generating Japanese summary for: {display_title[:50]}...")
+            ai_summary = self.summarizer.summarize(entry)
+
+            if ai_summary:
+                description = f"**📝 AI要約（日本語）:**\n{ai_summary}\n\n---\n{description}"
+
         embed = {
-            "title": f"{'🚨 ' if is_priority else ''}{entry['title'][:200]}",
+            "title": f"{'🚨 ' if is_priority else ''}{display_title[:200]}",
             "url": entry["link"],
-            "description": entry["summary"][:300] if entry["summary"] else "",
+            "description": description[:2000],  # Discord limit
             "color": color,
             "fields": [
                 {"name": "Source", "value": entry["feed_name"], "inline": True},
