@@ -4,12 +4,16 @@
 
 ## 機能
 
-- 複数のRSSフィード（NVD、JPCERT、GitHub Advisory、Android/iOS開発者情報など）から情報を自動収集
-- キーワードベースのフィルタリング
-- 優先度付け（高優先度のアラートは個別通知）
-- 重複排除（SQLiteで既読管理）
-- Discord Webhook経由での通知
-- **AI要約（Ollama）** - High Priority通知に日本語要約を自動追加（完全無料、オプション機能）
+- **複数のRSSフィード監視** - NVD、JPCERT、GitHub Advisory、Android/iOS開発者情報など（各フィード先頭5件を取得）
+- **キーワードベースのフィルタリング** - セキュリティキーワード、言語名、重要度でフィルタ
+- **優先度付け（0-10段階）** - High Priority（優先度8以上）のみ通知、Low Priority（7以下）はスキップ
+- **重複排除** - SQLiteで既読管理、同じエントリは二度通知しない
+- **Discord Webhook通知** - High Priorityアラートを個別に赤色で強調表示
+- **🤖 AI要約機能（Ollama統合）** - 完全無料、オプション機能
+  - 英語タイトルを日本語に自動翻訳（本文から内容を理解して適切なタイトルを生成）
+  - 記事本文から日本語要約を自動生成（2-3文）
+  - High Priority通知のみ適用
+  - Ollama未起動時は自動的に無効化
 
 ## カバーしている言語・エコシステム
 
@@ -103,7 +107,23 @@ source ~/.bashrc
 
 ### 4. Ollama（AI要約）のセットアップ（オプション）
 
-High Priority通知に日本語要約を自動追加する機能です（完全無料）。
+High Priority通知に日本語タイトル＆要約を自動追加する機能です（完全無料）。
+
+**📝 AI要約機能の動作:**
+1. **英語タイトルの日本語化**
+   - 英語タイトルを検出（日本語文字が含まれていない場合）
+   - 記事本文を読み込んで内容を理解
+   - 適切な日本語タイトルを生成（20文字以内推奨）
+   - 例: `CVE-2018-25092` → `DiscordSailv2脆弱性：不正アクセスリスク`
+
+2. **日本語要約の生成**
+   - 記事URLから本文を自動取得（BeautifulSoup4）
+   - Ollama APIで日本語要約を生成（2-3文）
+   - Discord通知の説明欄に追加
+
+3. **対象**
+   - High Priority（優先度8以上）通知のみ
+   - Ollama未起動時は自動的に無効化（通常通知は継続）
 
 **Ollamaのインストール**
 
@@ -117,11 +137,21 @@ curl -fsSL https://ollama.com/install.sh | sh
 **モデルのダウンロード**
 
 ```bash
-# 推奨: llama3.2（軽量で高速）
-ollama pull llama3.2
-
-# または gemma2
+# 推奨: gemma2（日本語対応、軽量で高速）
 ollama pull gemma2
+
+# または llama3.2
+ollama pull llama3.2
+```
+
+**モデルの変更方法**
+
+デフォルトは `gemma2:9b` です。変更する場合は `src/summarizer.py` を編集：
+
+```python
+class OllamaSummarizer:
+    def __init__(self, model="gemma2:9b", ollama_url="http://localhost:11434"):
+        # model を変更
 ```
 
 **Ollamaサーバーの起動**
@@ -139,15 +169,18 @@ curl http://localhost:11434/api/tags
 
 JSONレスポンスが返ってくればOKです。
 
-Ollamaが起動していない場合、AI要約機能は自動的に無効化され、通常の通知のみが送信されます。
-
 ### 5. テスト実行
 
 ```bash
 python src/main.py
 ```
 
-初回実行時は多くの通知が送信される可能性があります。
+**初回実行時の注意:**
+- 各フィードから先頭5件を取得し、High Priority（優先度8以上）のみ通知
+- 初回は15-20件程度の通知が送信される可能性があります
+- Ollama有効時、各通知に5-10秒程度かかります（AI要約生成のため）
+- Discord Rate Limit（429エラー）が発生する場合がありますが、正常動作です
+- 2回目以降は新規エントリのみ通知されます（通常0-3件程度）
 
 ## 設定ファイル
 
@@ -167,9 +200,24 @@ feeds:
 
 フィルタリングルールを定義します。
 
+**フィルタ構造:**
 - `global`: すべてのフィードに適用
+  - `include_keywords`: High/Critical Severityキーワード（critical, high, severe, RCE, zero-day, exploit など）
+  - `exclude_keywords`: 除外キーワード（low severity, minor など）
 - `categories`: カテゴリ別のフィルタ
+  - `package`: 言語・パッケージマネージャー名（npm, pip, maven など）+ セキュリティキーワード必須
+  - `cve`: モバイル・OS・言語・コンテナ関連（android, ios, linux, docker など）
+  - `mobile`: アプリ審査関連（Play Console, App Store, 審査ガイドライン など）
 - `per_feed`: 特定フィード専用のフィルタ
+  - Node.js Security Releases: デフォルト優先度10（公式セキュリティリリース）
+  - JPCERT/CC, IPA: タイトルのみフィード用の特別処理
+
+**優先度ルール:**
+- 優先度8以上のみDiscord通知（High Priority）
+- 優先度7以下はスキップ（ログには記録）
+- CVE番号を含む: 優先度7以上
+- priority_keywordsにマッチ: 優先度10
+- high_severity_keywordsにマッチ: 優先度8以上
 
 キーワードは大文字小文字を区別しません。
 
@@ -274,6 +322,7 @@ Slack など他のサービスに通知したい場合は、`src/notifier.py` �
 1. `DISCORD_WEBHOOK_URL` が正しく設定されているか確認
 2. ログファイル `logs/feed.log` を確認
 3. 手動実行でエラーが出ないか確認: `python src/main.py`
+4. High Priority（優先度8以上）のエントリがあるか確認（7以下は通知されない仕様）
 
 ### フィードが取得できない
 
@@ -286,14 +335,44 @@ Slack など他のサービスに通知したい場合は、`src/notifier.py` �
 - `data/seen.db` が正しく機能しているか確認
 - データベースファイルの権限を確認
 
+### AI要約が生成されない
+
+1. **Ollamaが起動しているか確認**
+   ```bash
+   curl http://localhost:11434/api/tags
+   ```
+   エラーが出る場合は `ollama serve` で起動
+
+2. **モデルがダウンロードされているか確認**
+   ```bash
+   ollama list
+   ```
+   `gemma2:9b` または `llama3.2` が表示されるか確認
+
+3. **ログを確認**
+   - `Generating Japanese title for: ...` が出力されているか
+   - `Ollama API failed: ...` エラーがないか確認
+
+4. **High Priority通知のみ対象**
+   - 優先度7以下の通知にはAI要約は追加されません
+
+### AI要約の精度が低い
+
+- より大きなモデルに変更: `ollama pull llama3.1:70b`（要高スペックマシン）
+- プロンプトを調整: `src/summarizer.py` の `_generate_summary()` を編集
+
 ## ライセンス
 
 MIT License
 
 ## 拡張アイデア
 
-- Slack対応
-- Web UI（閲覧・フィルタ編集）
-- RSSがないサイトのスクレイピング対応
-- NVD APIでCVSSスコア自動取得
-- メール通知対応
+- **Slack/Teams対応** - 他のチャットツールへの通知
+- **Web UI** - フィード閲覧、フィルタ編集、統計表示
+- **スクレイピング対応** - RSSがないサイトからも情報収集
+- **CVSS自動取得** - NVD APIでCVSSスコアを自動取得して優先度判定
+- **メール通知** - 重要度に応じてメール送信
+- **多言語AI要約** - 英語・中国語・韓国語記事の日本語要約
+- **AI分類** - 脆弱性の影響範囲や修正方法を自動分類
+- **通知のグルーピング** - 関連する脆弱性をまとめて通知
+- **Webhook送信** - 他のシステムとの連携
