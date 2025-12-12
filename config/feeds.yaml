@@ -19,7 +19,7 @@ feeds:
 
   # 言語・エコシステム別セキュリティ
   - name: "Node.js Security Releases"
-    url: "https://nodejs.org/en/feed/releases.xml"
+    url: "https://nodejs.org/en/feed/vulnerability.xml"
     category: "package"
 
   - name: "Ruby Security"
