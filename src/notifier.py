@@ -7,23 +7,25 @@ class DiscordNotifier:
         self.webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
 
     def send_batch(self, entries, batch_size=5):
-        """複数エントリをまとめて送信"""
+        """High Priority（優先度8以上）のみを個別送信"""
         if not self.webhook_url:
             print("DISCORD_WEBHOOK_URL not set")
             return
 
-        # 優先度でグループ分け
+        # High Level（優先度8以上）のみ通知
         high_priority = [e for e in entries if e["priority"] >= 8]
-        normal = [e for e in entries if e["priority"] < 8]
 
-        # 高優先度は個別送信
+        if high_priority:
+            print(f"Sending {len(high_priority)} high priority notifications")
+
+        # 優先度8未満はスキップ
+        skipped = len([e for e in entries if e["priority"] < 8])
+        if skipped > 0:
+            print(f"Skipped {skipped} lower priority entries (priority < 8)")
+
+        # 高優先度のみ個別送信
         for entry in high_priority:
             self._send_single(entry, is_priority=True)
-
-        # 通常はまとめて送信
-        for i in range(0, len(normal), batch_size):
-            batch = normal[i:i+batch_size]
-            self._send_batch_embed(batch)
 
     def _send_single(self, entry, is_priority=False):
         color = 0xFF0000 if is_priority else 0x00FF00  # 赤 or 緑
