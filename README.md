@@ -264,21 +264,6 @@ crontab -r
 crontab -l
 ```
 
-**コメントアウトの方法:**
-
-行頭に `#` を付けることで、その行は実行されなくなります。
-
-```bash
-# 環境変数
-DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/xxxx/yyyy
-
-# セキュリティフィード監視（6時間ごと） - 有効
-0 */6 * * * cd /path/to/tech_news && /path/to/venv/bin/python src/main.py >> logs/cron.log 2>&1
-
-# 以下は一時的に無効化（コメントアウト）
-# 0 9,21 * * * cd /path/to/tech_news && /path/to/venv/bin/python src/main.py >> logs/cron.log 2>&1
-```
-
 ### systemdタイマーで実行する場合（推奨）
 
 **tech_news.service**
