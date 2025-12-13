@@ -179,7 +179,7 @@ JSONレスポンスが返ってくればOKです。
 ### 5. テスト実行
 
 ```bash
-python src/main.py
+python3 src/main.py
 ```
 
 **初回実行時の注意:**
@@ -328,7 +328,7 @@ Slack など他のサービスに通知したい場合は、`src/notifier.py` �
 
 1. `DISCORD_WEBHOOK_URL` が正しく設定されているか確認
 2. ログファイル `logs/feed.log` を確認
-3. 手動実行でエラーが出ないか確認: `python src/main.py`
+3. 手動実行でエラーが出ないか確認: `python3 src/main.py`
 4. High Priority（優先度8以上）のエントリがあるか確認（7以下は通知されない仕様）
 
 ### フィードが取得できない
