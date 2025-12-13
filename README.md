@@ -243,10 +243,10 @@ crontab -e
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/xxxx/yyyy
 
 # 6時間ごとに実行
-0 */6 * * * cd /path/to/tech_news && /path/to/venv/bin/python src/main.py >> logs/cron.log 2>&1
+0 */6 * * * cd /path/to/tech_news && /path/to/venv/bin/python3 src/main.py >> logs/cron.log 2>&1
 
 # または1日2回（朝9時と夜9時）
-0 9,21 * * * cd /path/to/tech_news && /path/to/venv/bin/python src/main.py >> logs/cron.log 2>&1
+0 9,21 * * * cd /path/to/tech_news && /path/to/venv/bin/python3 src/main.py >> logs/cron.log 2>&1
 ```
 
 **注意**: パスは絶対パスで指定してください。
@@ -278,7 +278,7 @@ Type=oneshot
 User=your-username
 WorkingDirectory=/path/to/tech_news
 Environment="DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/xxxx/yyyy"
-ExecStart=/path/to/venv/bin/python src/main.py
+ExecStart=/path/to/venv/bin/python3 src/main.py
 
 [Install]
 WantedBy=multi-user.target
